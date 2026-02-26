@@ -29,6 +29,8 @@ public class Car extends Audit {
     String color;
     @Enumerated(EnumType.STRING)
     TransmissionType transmission;
+    @Enumerated(EnumType.STRING)
+    TransmissionType carType;
 
 
 }
