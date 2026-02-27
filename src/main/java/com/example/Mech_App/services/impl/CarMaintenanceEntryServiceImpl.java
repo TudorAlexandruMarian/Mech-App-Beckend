@@ -1,10 +1,13 @@
 package com.example.Mech_App.services.impl;
 
+import com.example.Mech_App.bo.DefaultMaintenanceItem;
+import com.example.Mech_App.models.CarMaintenanceEntryComplete;
 import com.example.Mech_App.services.CarMaintenanceEntryService;
 
 import com.example.Mech_App.bo.CarMaintenanceEntry;
 import com.example.Mech_App.models.CarMaintenanceEntryFilters;
 import com.example.Mech_App.repositories.CarMaintenanceEntryRepository;
+import com.example.Mech_App.services.ServiceFactory;
 import com.example.Mech_App.specifications.CarMaintenanceEntrySpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +15,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class CarMaintenanceEntryServiceImpl implements CarMaintenanceEntryService {
 
 
     private final CarMaintenanceEntryRepository repository;
+
+    private final ServiceFactory serviceFactory;
 
     @Override
     public void createCarMaintenanceEntry(CarMaintenanceEntry entry) {
@@ -50,6 +60,30 @@ public class CarMaintenanceEntryServiceImpl implements CarMaintenanceEntryServic
     }
 
     @Override
+    public List<CarMaintenanceEntryComplete> findLatestChangesByCar(Long carId) {
+        List<CarMaintenanceEntryComplete> response = new ArrayList<>();
+
+        List<CarMaintenanceEntry> lastChanges = repository.findLatestDistinctEntries(carId);
+
+        List<Long> defaultMaintenanceItemIds = lastChanges.stream()
+                .map(CarMaintenanceEntry::getDefaultMaintenanceItemId)
+                .collect(Collectors.toList());
+
+        List<DefaultMaintenanceItem> allItemsByIds = serviceFactory.getDefaultMaintenanceItemService().findByIdIn(defaultMaintenanceItemIds);
+        Map<Long, DefaultMaintenanceItem> itemsById = allItemsByIds.stream()
+                .collect(Collectors.toMap(DefaultMaintenanceItem::getId, item -> item));
+
+        for (CarMaintenanceEntry lastMaintenanceItem : lastChanges) {
+            response.add(CarMaintenanceEntryComplete.builder()
+                    .carMaintenanceEntry(lastMaintenanceItem)
+                    .defaultMaintenanceItem(itemsById.getOrDefault(lastMaintenanceItem.getDefaultMaintenanceItemId(), null))
+                    .build());
+        }
+
+        return response;
+    }
+
+    @Override
     public Page<CarMaintenanceEntry> getAllCarMaintenanceEntries(
             CarMaintenanceEntryFilters filters,
             Pageable pageable
@@ -57,9 +91,9 @@ public class CarMaintenanceEntryServiceImpl implements CarMaintenanceEntryServic
         return repository.findAll(
                 CarMaintenanceEntrySpecification.withFilters(
                         null,
-                        null,
+                        filters.getServiceEntryId(),
                         null
-                        ),
+                ),
                 pageable
         );
     }

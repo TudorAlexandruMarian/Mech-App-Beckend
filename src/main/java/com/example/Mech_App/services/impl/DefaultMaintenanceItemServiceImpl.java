@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DefaultMaintenanceItemServiceImpl implements DefaultMaintenanceItemService {
@@ -64,5 +66,12 @@ public class DefaultMaintenanceItemServiceImpl implements DefaultMaintenanceItem
                 pageable
         );
     }
+
+
+    @Override
+    public List<DefaultMaintenanceItem> findByIdIn(List<Long> ids) {
+        return repository.findByIdIn(ids);
+    }
+
 
 }

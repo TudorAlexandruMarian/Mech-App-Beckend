@@ -6,6 +6,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface DefaultMaintenanceItemService {
     void create(DefaultMaintenanceItem item);
 
@@ -21,4 +23,6 @@ public interface DefaultMaintenanceItemService {
             DefaultMaintenanceItemFilters filters,
             Pageable pageable
     );
+
+    List<DefaultMaintenanceItem> findByIdIn(List<Long> ids);
 }

@@ -49,10 +49,7 @@ public class ServiceEntryController {
             @RequestBody ServiceEntryFilters filters,
             Pageable pageable
     ) {
-        Page<ServiceEntry> result =
-                serviceFactory.getServiceEntryService()
-                        .getAllServiceEntries(filters, pageable);
-
+        Page<ServiceEntry> result = serviceFactory.getServiceEntryService().getAllServiceEntries(filters, pageable);
         return ResponseEntity.ok(result);
     }
 

@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/car")
 @RequiredArgsConstructor
@@ -53,6 +55,12 @@ public class CarController {
                 .getCarService()
                 .getAllCars(filters, pageable);
 
+        return ResponseEntity.ok(cars);
+    }
+
+    @PostMapping("/allByClient/{clientId}")
+    public ResponseEntity<List<Car>> getAllCarsByClient(@PathVariable("clientId") Long clientId) {
+        List<Car> cars = serviceFactory.getCarService().getAllCarsByCustomer(clientId);
         return ResponseEntity.ok(cars);
     }
 

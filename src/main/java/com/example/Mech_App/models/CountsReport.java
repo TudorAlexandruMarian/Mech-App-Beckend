@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CarMaintenanceEntryFilters {
-    LocalDate date;
-    Long serviceEntryId;
+public class CountsReport {
+    Long cars;
+    Long clients;
+    Long serviceEntries;
+    Long maintenanceItem;
 }

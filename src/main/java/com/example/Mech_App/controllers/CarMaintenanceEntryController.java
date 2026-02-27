@@ -1,6 +1,7 @@
 package com.example.Mech_App.controllers;
 
 import com.example.Mech_App.bo.CarMaintenanceEntry;
+import com.example.Mech_App.models.CarMaintenanceEntryComplete;
 import com.example.Mech_App.models.CarMaintenanceEntryFilters;
 import com.example.Mech_App.services.ServiceFactory;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/car-maintenance-entry")
@@ -21,6 +24,13 @@ public class CarMaintenanceEntryController {
         return ResponseEntity.ok(
                 serviceFactory.getCarMaintenanceEntryService()
                         .getCarMaintenanceEntry(id)
+        );
+    }
+
+    @GetMapping("/getLastChangesByCar/{carId}")
+    public ResponseEntity<List<CarMaintenanceEntryComplete>> getLastChangesByCar(@PathVariable("carId") Long carId) {
+        return ResponseEntity.ok(
+                serviceFactory.getCarMaintenanceEntryService().findLatestChangesByCar(carId)
         );
     }
 
@@ -59,5 +69,6 @@ public class CarMaintenanceEntryController {
 
         return ResponseEntity.ok(result);
     }
+
 
 }

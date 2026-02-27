@@ -1,5 +1,6 @@
 package com.example.Mech_App.services;
 
+import com.example.Mech_App.bo.DefaultMaintenanceItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,15 @@ public class ServiceFactory {
 
     public CarMaintenanceEntryService getCarMaintenanceEntryService() {
         return context.getBean(CarMaintenanceEntryService.class);
+    }
+
+    public DefaultMaintenanceItemService getDefaultMaintenanceItemService() {
+        return context.getBean(DefaultMaintenanceItemService.class);
+    }
+
+
+    public ReportsService getReportsService() {
+        return context.getBean(ReportsService.class);
     }
 
 

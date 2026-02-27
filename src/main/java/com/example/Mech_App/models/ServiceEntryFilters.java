@@ -13,4 +13,6 @@ import java.time.LocalDate;
 @Builder
 public class ServiceEntryFilters {
     LocalDate date;
+    Long carId;
+    Long customerId;
 }

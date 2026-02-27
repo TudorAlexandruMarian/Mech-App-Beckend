@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface DefaultMaintenanceItemRepository extends JpaRepository<DefaultMaintenanceItem, Long>, JpaSpecificationExecutor<DefaultMaintenanceItem> {
 
@@ -15,5 +17,7 @@ public interface DefaultMaintenanceItemRepository extends JpaRepository<DefaultM
         return findById(id)
                 .orElseThrow(() -> new CustomResponseStatusException(HttpStatus.BAD_REQUEST, "DefaultMaintenanceItem not found with id: " + id));
     }
+
+    List<DefaultMaintenanceItem> findByIdIn(List<Long> ids);
 
 }

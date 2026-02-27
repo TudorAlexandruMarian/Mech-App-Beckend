@@ -6,6 +6,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface CarService {
 
 
@@ -20,4 +22,6 @@ public interface CarService {
     void deleteCar(Long id);
 
     Page<Car> getAllCars(CarFilters filters, Pageable pageable);
+
+    List<Car> getAllCarsByCustomer(Long clientId);
 }

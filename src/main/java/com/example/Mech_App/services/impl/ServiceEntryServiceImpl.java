@@ -56,8 +56,8 @@ public class ServiceEntryServiceImpl implements ServiceEntryService {
     public Page<ServiceEntry> getAllServiceEntries(ServiceEntryFilters filters, Pageable pageable) {
         return serviceEntryRepository.findAll(
                 ServiceEntrySpecification.withFilters(
-                        null,
-                        null,
+                        filters.getCarId(),
+                        filters.getCustomerId(),
                         null,
                         null,
                         null

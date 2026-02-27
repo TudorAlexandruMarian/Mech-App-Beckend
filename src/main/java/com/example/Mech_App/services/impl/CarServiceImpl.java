@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CarServiceImpl implements CarService {
@@ -65,6 +67,12 @@ public class CarServiceImpl implements CarService {
                 ),
                 pageable
         );
+    }
+
+
+    @Override
+    public List<Car> getAllCarsByCustomer(Long clientId) {
+        return carRepository.findByClientId(clientId);
     }
 
 

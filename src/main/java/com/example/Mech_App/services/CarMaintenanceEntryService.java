@@ -1,10 +1,13 @@
 package com.example.Mech_App.services;
 
 import com.example.Mech_App.bo.CarMaintenanceEntry;
+import com.example.Mech_App.models.CarMaintenanceEntryComplete;
 import com.example.Mech_App.models.CarMaintenanceEntryFilters;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface CarMaintenanceEntryService {
     void createCarMaintenanceEntry(CarMaintenanceEntry entry);
@@ -16,6 +19,8 @@ public interface CarMaintenanceEntryService {
 
     @Transactional
     void deleteCarMaintenanceEntry(Long id);
+
+    List<CarMaintenanceEntryComplete> findLatestChangesByCar(Long carId);
 
     Page<CarMaintenanceEntry> getAllCarMaintenanceEntries(
             CarMaintenanceEntryFilters filters,
