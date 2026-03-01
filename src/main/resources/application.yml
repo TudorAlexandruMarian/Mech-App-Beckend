@@ -36,6 +36,11 @@ cors:
 storage:
   location: '/c/Users/alexa/Documents/GitHub/Mech-App-Beckend/dms'
 
+jwt:
+  secret: ${JWT_SECRET:mech-app-secret-key-change-in-production-min-256-bits}
+  access-validity-ms: 900000
+  refresh-validity-ms: 604800000
+
 
 
 

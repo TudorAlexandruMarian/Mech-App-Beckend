@@ -1,9 +1,12 @@
 package com.example.Mech_App.services.impl;
 
 import com.example.Mech_App.bo.Client;
+import com.example.Mech_App.bo.User;
 import com.example.Mech_App.configs.CustomResponseStatusException;
+import com.example.Mech_App.enums.UserRole;
 import com.example.Mech_App.models.ClientFilters;
 import com.example.Mech_App.repositories.ClientRepository;
+import com.example.Mech_App.repositories.UserRepository;
 import com.example.Mech_App.services.ClientService;
 import com.example.Mech_App.specifications.ClientSpecification;
 import jakarta.transaction.Transactional;
@@ -24,6 +27,7 @@ public class ClientServiceImpl implements ClientService {
     private static final SecureRandom random = new SecureRandom();
 
     private final ClientRepository clientRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void createClient(Client client) {
@@ -38,6 +42,13 @@ public class ClientServiceImpl implements ClientService {
             client.setPhoneNumber(phone);
         }
         clientRepository.save(client);
+        // Create User with CLIENT role linked to this client (no password for phone-only auth)
+        User user = new User();
+        user.setPhoneNumber(client.getPhoneNumber());
+        user.setRole(UserRole.CLIENT);
+        user.setClientId(client.getId());
+        user.setPasswordHash(null);  // CLIENT signs in with phone only
+        userRepository.save(user);
     }
 
     @Override
@@ -64,6 +75,11 @@ public class ClientServiceImpl implements ClientService {
         existingClient.setEmail(newClientData.getEmail());
         existingClient.setName(newClientData.getName());
         existingClient.setPhoneNumber(newPhone != null ? newPhone : newClientData.getPhoneNumber());
+        // Sync User phone if linked
+        userRepository.findByClientId(id).ifPresent(user -> {
+            user.setPhoneNumber(existingClient.getPhoneNumber());
+            userRepository.save(user);
+        });
     }
 
     @Override
@@ -80,6 +96,7 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public void deleteClient(Long id) {
         clientRepository.findByIdRequired(id);
+        userRepository.findByClientId(id).ifPresent(userRepository::delete);
         clientRepository.deleteById(id);
     }
 
