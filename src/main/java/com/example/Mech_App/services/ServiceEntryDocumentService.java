@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ServiceEntryDocumentService {
-    void createDocument(MultipartFile file, DocumentType section, Long serviceEntryId);
+    Document createDocument(MultipartFile file, DocumentType section, Long serviceEntryId);
 
     @Modifying
     void deleteDocument(Long docId);

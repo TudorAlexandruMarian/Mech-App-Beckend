@@ -1,6 +1,7 @@
 package com.example.Mech_App.services.impl;
 
 import com.example.Mech_App.bo.Client;
+import com.example.Mech_App.configs.CustomResponseStatusException;
 import com.example.Mech_App.models.ClientFilters;
 import com.example.Mech_App.repositories.ClientRepository;
 import com.example.Mech_App.services.ClientService;
@@ -9,6 +10,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -27,6 +29,14 @@ public class ClientServiceImpl implements ClientService {
     public void createClient(Client client) {
         client.setId(null);
         client.setPassword(generatePassword());
+        String phone = client.getPhoneNumber() != null ? client.getPhoneNumber().trim() : null;
+        if (phone != null && !phone.isBlank()) {
+            clientRepository.findByPhoneNumber(phone)
+                    .ifPresent(existing -> {
+                        throw new CustomResponseStatusException(HttpStatus.BAD_REQUEST, "Phone number already in use.");
+                    });
+            client.setPhoneNumber(phone);
+        }
         clientRepository.save(client);
     }
 
@@ -41,9 +51,19 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public void editClient(Long id, Client newClientData) {
         Client existingClient = clientRepository.findByIdRequired(id);
+        String newPhone = newClientData.getPhoneNumber() != null ? newClientData.getPhoneNumber().trim() : null;
+        String currentPhone = existingClient.getPhoneNumber() != null ? existingClient.getPhoneNumber().trim() : null;
+        if (newPhone != null && !newPhone.isBlank() && !newPhone.equals(currentPhone)) {
+            clientRepository.findByPhoneNumber(newPhone)
+                    .ifPresent(other -> {
+                        if (!other.getId().equals(id)) {
+                            throw new CustomResponseStatusException(HttpStatus.BAD_REQUEST, "Phone number already in use.");
+                        }
+                    });
+        }
         existingClient.setEmail(newClientData.getEmail());
         existingClient.setName(newClientData.getName());
-        existingClient.setPhoneNumber(newClientData.getPhoneNumber());
+        existingClient.setPhoneNumber(newPhone != null ? newPhone : newClientData.getPhoneNumber());
     }
 
     @Override

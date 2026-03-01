@@ -42,5 +42,7 @@ public class ServiceFactory {
         return context.getBean(ReportsService.class);
     }
 
-
+    public ServiceEntryDocumentService getServiceEntryDocumentService() {
+        return context.getBean(ServiceEntryDocumentService.class);
+    }
 }

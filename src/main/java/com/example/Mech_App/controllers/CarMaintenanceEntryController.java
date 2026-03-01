@@ -5,8 +5,9 @@ import com.example.Mech_App.models.CarMaintenanceEntryComplete;
 import com.example.Mech_App.models.CarMaintenanceEntryFilters;
 import com.example.Mech_App.services.ServiceFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +57,16 @@ public class CarMaintenanceEntryController {
         serviceFactory.getCarMaintenanceEntryService()
                 .deleteCarMaintenanceEntry(id);
         return ResponseEntity.ok("Car maintenance entry deleted successfully!");
+    }
+
+    @GetMapping("/by-service-entry/{serviceEntryId}")
+    public ResponseEntity<List<CarMaintenanceEntry>> getByServiceEntry(@PathVariable Long serviceEntryId) {
+        CarMaintenanceEntryFilters filters = CarMaintenanceEntryFilters.builder()
+                .serviceEntryId(serviceEntryId)
+                .build();
+        Page<CarMaintenanceEntry> page = serviceFactory.getCarMaintenanceEntryService()
+                .getAllCarMaintenanceEntries(filters, PageRequest.of(0, 1000));
+        return ResponseEntity.ok(page.getContent());
     }
 
     @PostMapping("/all")

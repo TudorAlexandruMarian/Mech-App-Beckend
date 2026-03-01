@@ -20,10 +20,10 @@ public class ServiceEntryDocumentServiceImpl implements ServiceEntryDocumentServ
 
 
     @Override
-    public void createDocument(MultipartFile file, DocumentType section, Long serviceEntryId) {
+    public Document createDocument(MultipartFile file, DocumentType section, Long serviceEntryId) {
         Document newDocument = Document.builder().documentType(section).serviceEntryId(serviceEntryId).build();
         newDocument.setDocPath(serviceFactory.getDocumentService().storeFile(file, section, serviceEntryId));
-        documentRepository.save(newDocument);
+        return documentRepository.save(newDocument);
     }
 
 
@@ -40,8 +40,4 @@ public class ServiceEntryDocumentServiceImpl implements ServiceEntryDocumentServ
     public List<Document> findByServiceEntryAndDocType(Long serviceEntryId, DocumentType docType) {
         return documentRepository.findByServiceEntryIdAndDocumentType(serviceEntryId, docType);
     }
-
-    ;
-
-
 }

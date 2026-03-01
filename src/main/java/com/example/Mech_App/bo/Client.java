@@ -14,6 +14,7 @@ public class Client extends Audit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String name;
+    @Column(unique = true)
     String phoneNumber;
     String email;
     String password;
