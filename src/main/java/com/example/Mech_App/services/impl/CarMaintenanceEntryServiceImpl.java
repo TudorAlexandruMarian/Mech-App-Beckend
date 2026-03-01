@@ -1,6 +1,7 @@
 package com.example.Mech_App.services.impl;
 
 import com.example.Mech_App.bo.DefaultMaintenanceItem;
+import com.example.Mech_App.bo.ServiceEntry;
 import com.example.Mech_App.models.CarMaintenanceEntryComplete;
 import com.example.Mech_App.services.CarMaintenanceEntryService;
 
@@ -69,14 +70,22 @@ public class CarMaintenanceEntryServiceImpl implements CarMaintenanceEntryServic
                 .map(CarMaintenanceEntry::getDefaultMaintenanceItemId)
                 .collect(Collectors.toList());
 
+        List<Long> allServiceEntriesIds = lastChanges.stream()
+                .map(CarMaintenanceEntry::getServiceEntryId)
+                .toList();
+
         List<DefaultMaintenanceItem> allItemsByIds = serviceFactory.getDefaultMaintenanceItemService().findByIdIn(defaultMaintenanceItemIds);
         Map<Long, DefaultMaintenanceItem> itemsById = allItemsByIds.stream()
                 .collect(Collectors.toMap(DefaultMaintenanceItem::getId, item -> item));
 
+        List<ServiceEntry> allServicesByIds = serviceFactory.getServiceEntryService().getByIds(allServiceEntriesIds);
+        Map<Long, ServiceEntry> servicesById = allServicesByIds.stream()
+                .collect(Collectors.toMap(ServiceEntry::getId, item -> item));
         for (CarMaintenanceEntry lastMaintenanceItem : lastChanges) {
             response.add(CarMaintenanceEntryComplete.builder()
                     .carMaintenanceEntry(lastMaintenanceItem)
                     .defaultMaintenanceItem(itemsById.getOrDefault(lastMaintenanceItem.getDefaultMaintenanceItemId(), null))
+                    .serviceEntry(servicesById.getOrDefault(lastMaintenanceItem.getServiceEntryId(), null))
                     .build());
         }
 

@@ -27,5 +27,6 @@ public class ServiceEntry extends Audit {
     ServiceStatus status;
     Long partsTotalPrice;
     Long laborTotalCost;
+    Long odometer;
 
 }

@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ServiceEntryServiceImpl implements ServiceEntryService {
@@ -43,6 +45,7 @@ public class ServiceEntryServiceImpl implements ServiceEntryService {
         existing.setStatus(newData.getStatus());
         existing.setPartsTotalPrice(newData.getPartsTotalPrice());
         existing.setLaborTotalCost(newData.getLaborTotalCost());
+        existing.setOdometer(newData.getOdometer());
     }
 
     @Override
@@ -65,5 +68,12 @@ public class ServiceEntryServiceImpl implements ServiceEntryService {
                 pageable
         );
     }
+
+
+    @Override
+    public List<ServiceEntry> getByIds(List<Long> ids) {
+        return serviceEntryRepository.findByIdIn(ids);
+    }
+
 
 }

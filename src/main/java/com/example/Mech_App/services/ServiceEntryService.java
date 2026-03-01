@@ -6,6 +6,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ServiceEntryService {
     void createServiceEntry(ServiceEntry serviceEntry);
 
@@ -18,4 +20,6 @@ public interface ServiceEntryService {
     void deleteServiceEntry(Long id);
 
     Page<ServiceEntry> getAllServiceEntries(ServiceEntryFilters filters, Pageable pageable);
+
+    List<ServiceEntry> getByIds(List<Long> ids);
 }
