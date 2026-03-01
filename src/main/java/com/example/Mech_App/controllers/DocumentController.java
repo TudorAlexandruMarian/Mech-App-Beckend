@@ -10,5 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/document")
 @RequiredArgsConstructor
 public class DocumentController {
+    private final ServiceFactory serviceFactory;
+
 
 }

@@ -34,6 +34,9 @@ public class ServiceFactory {
         return context.getBean(DefaultMaintenanceItemService.class);
     }
 
+    public DocumentService getDocumentService() {
+        return context.getBean(DocumentService.class);
+    }
 
     public ReportsService getReportsService() {
         return context.getBean(ReportsService.class);

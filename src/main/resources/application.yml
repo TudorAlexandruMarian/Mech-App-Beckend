@@ -29,6 +29,10 @@ spring:
 server:
   port: 8080
 
+# CORS: allow frontend (Vite default is 5173)
+cors:
+  allowed-origins: http://localhost:5173,http://127.0.0.1:5173
+
 storage:
   location: '/home/administrator/'
 
