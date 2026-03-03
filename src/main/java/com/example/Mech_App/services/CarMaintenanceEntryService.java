@@ -1,6 +1,7 @@
 package com.example.Mech_App.services;
 
 import com.example.Mech_App.bo.CarMaintenanceEntry;
+import com.example.Mech_App.models.CarLastChangesForRemainder;
 import com.example.Mech_App.models.CarMaintenanceEntryComplete;
 import com.example.Mech_App.models.CarMaintenanceEntryFilters;
 import jakarta.transaction.Transactional;
@@ -21,6 +22,8 @@ public interface CarMaintenanceEntryService {
     void deleteCarMaintenanceEntry(Long id);
 
     List<CarMaintenanceEntryComplete> findLatestChangesByCar(Long carId);
+
+    CarLastChangesForRemainder findLatestChangesByCarForReminder(Long carId);
 
     Page<CarMaintenanceEntry> getAllCarMaintenanceEntries(
             CarMaintenanceEntryFilters filters,

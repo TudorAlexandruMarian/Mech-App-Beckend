@@ -23,5 +23,7 @@ public interface CarService {
 
     Page<Car> getAllCars(CarFilters filters, Pageable pageable);
 
+    List<Car> getAll();
+
     List<Car> getAllCarsByCustomer(Long clientId);
 }

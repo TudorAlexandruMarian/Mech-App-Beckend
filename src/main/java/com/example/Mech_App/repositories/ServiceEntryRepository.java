@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ServiceEntryRepository extends JpaRepository<ServiceEntry, Long>, JpaSpecificationExecutor<ServiceEntry> {
@@ -18,7 +19,6 @@ public interface ServiceEntryRepository extends JpaRepository<ServiceEntry, Long
         return findById(id)
                 .orElseThrow(() -> new CustomResponseStatusException(HttpStatus.BAD_REQUEST, "ServiceEntry not found with id: " + id));
     }
-
-
+    Optional<ServiceEntry> findTopByCarIdOrderByFinishDateDesc(Long carId);
     List<ServiceEntry> findByIdIn(List<Long> ids);
 }

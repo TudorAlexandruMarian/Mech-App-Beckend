@@ -21,5 +21,7 @@ public interface ServiceEntryService {
 
     Page<ServiceEntry> getAllServiceEntries(ServiceEntryFilters filters, Pageable pageable);
 
+    ServiceEntry getLastEntryByCar(Long carId);
+
     List<ServiceEntry> getByIds(List<Long> ids);
 }

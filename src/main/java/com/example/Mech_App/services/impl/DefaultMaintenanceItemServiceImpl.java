@@ -28,6 +28,11 @@ public class DefaultMaintenanceItemServiceImpl implements DefaultMaintenanceItem
     }
 
     @Override
+    public List<DefaultMaintenanceItem> getAll() {
+        return repository.findAll();
+    }
+
+    @Override
     public DefaultMaintenanceItem get(Long id) {
         return repository.findByIdRequired(id);
     }

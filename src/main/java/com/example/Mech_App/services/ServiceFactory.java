@@ -45,4 +45,8 @@ public class ServiceFactory {
     public ServiceEntryDocumentService getServiceEntryDocumentService() {
         return context.getBean(ServiceEntryDocumentService.class);
     }
+
+    public ReminderService getReminderService() {
+        return context.getBean(ReminderService.class);
+    }
 }

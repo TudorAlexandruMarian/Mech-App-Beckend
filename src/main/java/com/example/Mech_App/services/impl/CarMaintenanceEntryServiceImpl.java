@@ -2,6 +2,7 @@ package com.example.Mech_App.services.impl;
 
 import com.example.Mech_App.bo.DefaultMaintenanceItem;
 import com.example.Mech_App.bo.ServiceEntry;
+import com.example.Mech_App.models.CarLastChangesForRemainder;
 import com.example.Mech_App.models.CarMaintenanceEntryComplete;
 import com.example.Mech_App.services.CarMaintenanceEntryService;
 
@@ -89,6 +90,44 @@ public class CarMaintenanceEntryServiceImpl implements CarMaintenanceEntryServic
                     .build());
         }
 
+        return response;
+    }
+
+
+    @Override
+    public CarLastChangesForRemainder findLatestChangesByCarForReminder(Long carId) {
+
+        CarLastChangesForRemainder response = new CarLastChangesForRemainder();
+
+        List<CarMaintenanceEntry> lastChanges = repository.findLatestDistinctEntries(carId);
+
+        List<Long> defaultMaintenanceItemIds = lastChanges.stream()
+                .map(CarMaintenanceEntry::getDefaultMaintenanceItemId)
+                .collect(Collectors.toList());
+
+        List<Long> allServiceEntriesIds = lastChanges.stream()
+                .map(CarMaintenanceEntry::getServiceEntryId)
+                .toList();
+
+
+        List<DefaultMaintenanceItem> allItemsByIds = serviceFactory.getDefaultMaintenanceItemService().findByIdIn(defaultMaintenanceItemIds);
+        Map<Long, DefaultMaintenanceItem> itemsById = allItemsByIds.stream()
+                .collect(Collectors.toMap(DefaultMaintenanceItem::getId, item -> item));
+
+
+
+
+        List<CarLastChangesForRemainder.ItemToCheck> itemsToCheck = new ArrayList<>();
+        for (CarMaintenanceEntry lastMaintenanceItem : lastChanges) {
+            itemsToCheck.add(
+                    CarLastChangesForRemainder.ItemToCheck.builder()
+                    .carMaintenanceEntry(lastMaintenanceItem)
+                    .defaultMaintenanceItem(itemsById.getOrDefault(lastMaintenanceItem.getDefaultMaintenanceItemId(),null))
+                    .build());
+        }
+
+        response.setItemsToCheck(itemsToCheck);
+        response.setLastServiceEntry(serviceFactory.getServiceEntryService().getLastEntryByCar(carId));
         return response;
     }
 

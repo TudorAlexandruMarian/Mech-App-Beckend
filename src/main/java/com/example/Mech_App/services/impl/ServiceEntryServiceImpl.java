@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +68,12 @@ public class ServiceEntryServiceImpl implements ServiceEntryService {
                 ),
                 pageable
         );
+    }
+
+    @Override
+    public ServiceEntry getLastEntryByCar(Long carId) {
+        Optional<ServiceEntry> serviceEntry = serviceEntryRepository.findTopByCarIdOrderByFinishDateDesc(carId);
+        return serviceEntry.orElse(null);
     }
 
 

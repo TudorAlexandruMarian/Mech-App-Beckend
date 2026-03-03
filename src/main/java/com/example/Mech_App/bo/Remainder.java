@@ -11,13 +11,14 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-public class CarMaintenanceEntry extends Audit {
+public class Remainder extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+    Long carMaintenanceEntry;
     Long carId;
-    Long serviceEntryId;
-    Long defaultMaintenanceItemId;
-    String descriptions;
-    Boolean remainderSent;
+    Long clientId;
+    String message;
+    Boolean sawByClient;
+    Boolean sawByAdmin;
 }

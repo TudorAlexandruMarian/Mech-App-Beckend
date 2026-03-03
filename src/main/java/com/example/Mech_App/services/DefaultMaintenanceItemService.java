@@ -11,6 +11,7 @@ import java.util.List;
 public interface DefaultMaintenanceItemService {
     void create(DefaultMaintenanceItem item);
 
+    List<DefaultMaintenanceItem> getAll();
     DefaultMaintenanceItem get(Long id);
 
     @Transactional
