@@ -43,7 +43,7 @@ public class ReminderServiceImpl implements ReminderService {
 
         for (CarLastChangesForRemainder.ItemToCheck itemCheck : elementToCheck.getItemsToCheck()) {
             try {
-                if (!Boolean.TRUE.equals(itemCheck.getCarMaintenanceEntry().getRemainderSent())) {
+                if (Boolean.TRUE.equals(itemCheck.getCarMaintenanceEntry().getRemainderSent())) {
                     continue;
                 }
 
@@ -70,7 +70,7 @@ public class ReminderServiceImpl implements ReminderService {
                 }
 
                 if (needsToBeReplaceByKm) {
-                    String message = "Masaina cu numarul de inmatruclulare " + car.getLicenseNo() + " a depasit durata de viata a elenetului de mentenata " + itemCheck.getDefaultMaintenanceItem().getName() + ". Acesta avand o durata maxima de viata de " + itemCheck.getDefaultMaintenanceItem().getMaxLifeKm() + " km. Ultima schimabre a fost la " + itemOdometer + ", masina avand acum " + lastCarOdometer;
+                    String message = "Masina cu numarul de inmatruclulare " + car.getLicenseNo() + " a depasit durata de viata a elemetului de mentenata " + itemCheck.getDefaultMaintenanceItem().getName() + ". Acesta avand o durata maxima de viata de " + itemCheck.getDefaultMaintenanceItem().getMaxLifeKm() + " km. Ultima schimabre a fost la " + itemOdometer + "km, masina avand acum " + lastCarOdometer+"Km.";
                     reminderRepository.save(Remainder.builder()
                             .carId(car.getId())
                             .carMaintenanceEntry(itemCheck.getCarMaintenanceEntry().getId())
@@ -92,7 +92,7 @@ public class ReminderServiceImpl implements ReminderService {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     String formattedDate = itemServiceEntryDate.format(formatter);
 
-                    String message = "Masaina cu numarul de inmatruclulare " + car.getLicenseNo() + " a depasit durata de viata a elenetului de mentenata " + itemCheck.getDefaultMaintenanceItem().getName() + ". Acesta avand o durata maxima de viata de " + itemCheck.getDefaultMaintenanceItem().getMaxLifeTime() + " zile, iar ultima schimabre a fost pe data de " + formattedDate;
+                    String message = "Masina cu numarul de inmatruclulare " + car.getLicenseNo() + " a depasit durata de viata a elemetului de mentenata " + itemCheck.getDefaultMaintenanceItem().getName() + ". Acesta avand o durata maxima de viata de " + itemCheck.getDefaultMaintenanceItem().getMaxLifeTime() + " zile, iar ultima schimabre a fost pe data de " + formattedDate;
                     reminderRepository.save(Remainder.builder()
                             .carId(car.getId())
                             .carMaintenanceEntry(itemCheck.getCarMaintenanceEntry().getId())
@@ -104,6 +104,7 @@ public class ReminderServiceImpl implements ReminderService {
 
                     CarMaintenanceEntry entry = itemCheck.getCarMaintenanceEntry();
                     entry.setRemainderSent(true);
+                    carMaintenanceEntryRepository.save(entry);
                 }
             } catch (Exception e) {
                 System.out.println("Fail to check car " + +car.getId() + " for ment item " + itemCheck.getCarMaintenanceEntry().getId());
