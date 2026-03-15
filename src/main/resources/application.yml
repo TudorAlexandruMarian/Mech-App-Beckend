@@ -34,7 +34,7 @@ cors:
   allowed-origins: http://localhost:5173,http://127.0.0.1:5173
 
 storage:
-  location: '/c/Users/alexa/Documents/GitHub/Mech-App-Beckend/dms'
+  location: 'C:/Users/alexa/Documents/GitHub/Mech-App-Beckend/dms'
 
 jwt:
   secret: ${JWT_SECRET:mech-app-secret-key-change-in-production-min-256-bits}

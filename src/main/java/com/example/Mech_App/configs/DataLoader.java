@@ -39,13 +39,16 @@ public class DataLoader implements CommandLineRunner {
             admin.setClientId(null);
             userRepository.save(admin);
         }
-        // Migrate existing clients: create User for each Client that has no User
+        // Migrate existing clients: create User for each Client that has no User; use "phone-identifier" if client has identifier
         List<Client> clients = clientRepository.findAll();
         for (Client c : clients) {
             if (c.getPhoneNumber() != null && !c.getPhoneNumber().isBlank()
                     && userRepository.findByClientId(c.getId()).isEmpty()) {
                 User u = new User();
-                u.setPhoneNumber(c.getPhoneNumber());
+                String stored = c.getIdentifier() != null && !c.getIdentifier().isBlank()
+                        ? c.getPhoneNumber() + "-" + c.getIdentifier()
+                        : c.getPhoneNumber();
+                u.setPhoneNumber(stored);
                 u.setRole(UserRole.CLIENT);
                 u.setClientId(c.getId());
                 u.setPasswordHash(null);

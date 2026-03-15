@@ -68,24 +68,26 @@ public class AuthServiceImpl implements AuthService {
         if (phone == null || phone.isBlank()) {
             throw new CustomResponseStatusException(HttpStatus.BAD_REQUEST, "Phone number is required for client login.");
         }
-        User user = userRepository.findByPhoneNumberAndRole(phone, UserRole.CLIENT)
+        // Client logs in with plain phone; User stores "phone-identifier", so find Client by phone then User by clientId
+        Client client = clientRepository.findByPhoneNumber(phone)
                 .orElseThrow(() -> new CustomResponseStatusException(HttpStatus.UNAUTHORIZED, "No account found for this phone number."));
-        Client client = null;
-        if (user.getClientId() != null) {
-            client = clientRepository.findById(user.getClientId()).orElse(null);
-        }
+        User user = userRepository.findByClientId(client.getId())
+                .orElseThrow(() -> new CustomResponseStatusException(HttpStatus.UNAUTHORIZED, "No account found for this phone number."));
         return buildAuthResponse(user, client);
     }
 
     private AuthResponse buildAuthResponse(User user, Client client) {
+        String subject = user.getEmail() != null ? user.getEmail() : (client != null ? client.getPhoneNumber() : user.getPhoneNumber());
         String accessToken = jwtUtil.generateAccessToken(
                 user.getId(),
-                user.getEmail() != null ? user.getEmail() : user.getPhoneNumber(),
+                subject,
                 user.getRole(),
                 user.getClientId()
         );
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
         String name = client != null ? client.getName() : (user.getEmail() != null ? user.getEmail().split("@")[0] : user.getPhoneNumber());
+        // For CLIENT, return plain phone (not "phone-identifier") for display
+        String phone = client != null ? client.getPhoneNumber() : user.getPhoneNumber();
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -94,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
                 .clientId(user.getClientId())
                 .name(name)
                 .email(user.getEmail())
-                .phone(user.getPhoneNumber())
+                .phone(phone)
                 .build();
     }
 

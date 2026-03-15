@@ -23,6 +23,9 @@ import java.security.SecureRandom;
 public class ClientServiceImpl implements ClientService {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    /** A–Z excluding I and O to avoid confusion with 1 and 0. */
+    private static final String LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    private static final String DIGITS = "0123456789";
     private static final int PASSWORD_LENGTH = 8;
     private static final SecureRandom random = new SecureRandom();
 
@@ -41,10 +44,11 @@ public class ClientServiceImpl implements ClientService {
                     });
             client.setPhoneNumber(phone);
         }
+        client.setIdentifier(generateUniqueIdentifier());
         clientRepository.save(client);
-        // Create User with CLIENT role linked to this client (no password for phone-only auth)
+        // Create User with CLIENT role: phoneNumber stored as "phone-identifier"
         User user = new User();
-        user.setPhoneNumber(client.getPhoneNumber());
+        user.setPhoneNumber(toStoredPhoneNumber(client.getPhoneNumber(), client.getIdentifier()));
         user.setRole(UserRole.CLIENT);
         user.setClientId(client.getId());
         user.setPasswordHash(null);  // CLIENT signs in with phone only
@@ -64,7 +68,8 @@ public class ClientServiceImpl implements ClientService {
         Client existingClient = clientRepository.findByIdRequired(id);
         String newPhone = newClientData.getPhoneNumber() != null ? newClientData.getPhoneNumber().trim() : null;
         String currentPhone = existingClient.getPhoneNumber() != null ? existingClient.getPhoneNumber().trim() : null;
-        if (newPhone != null && !newPhone.isBlank() && !newPhone.equals(currentPhone)) {
+        boolean phoneChanged = newPhone != null && !newPhone.isBlank() && !newPhone.equals(currentPhone);
+        if (phoneChanged) {
             clientRepository.findByPhoneNumber(newPhone)
                     .ifPresent(other -> {
                         if (!other.getId().equals(id)) {
@@ -75,9 +80,12 @@ public class ClientServiceImpl implements ClientService {
         existingClient.setEmail(newClientData.getEmail());
         existingClient.setName(newClientData.getName());
         existingClient.setPhoneNumber(newPhone != null ? newPhone : newClientData.getPhoneNumber());
-        // Sync User phone if linked
+        if (phoneChanged) {
+            existingClient.setIdentifier(generateUniqueIdentifier());
+        }
+        // Sync app_user: store phone-identifier
         userRepository.findByClientId(id).ifPresent(user -> {
-            user.setPhoneNumber(existingClient.getPhoneNumber());
+            user.setPhoneNumber(toStoredPhoneNumber(existingClient.getPhoneNumber(), existingClient.getIdentifier()));
             userRepository.save(user);
         });
     }
@@ -114,11 +122,36 @@ public class ClientServiceImpl implements ClientService {
     public static String generatePassword() {
         StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
         for (int i = 0; i < PASSWORD_LENGTH; i++) {
-            int index = random.nextInt(CHARACTERS.length());
-            sb.append(CHARACTERS.charAt(index));
+            sb.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
         }
         return sb.toString();
     }
 
+    /** AAAA1111 format: 4 letters A–Z, 4 digits 0–9. */
+    private String generateIdentifier() {
+        StringBuilder sb = new StringBuilder(8);
+        for (int i = 0; i < 4; i++) {
+            sb.append(LETTERS.charAt(random.nextInt(LETTERS.length())));
+        }
+        for (int i = 0; i < 4; i++) {
+            sb.append(DIGITS.charAt(random.nextInt(DIGITS.length())));
+        }
+        return sb.toString();
+    }
 
+    private String generateUniqueIdentifier() {
+        for (int attempt = 0; attempt < 100; attempt++) {
+            String id = generateIdentifier();
+            if (clientRepository.findByIdentifier(id).isEmpty()) {
+                return id;
+            }
+        }
+        throw new CustomResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not generate unique identifier.");
+    }
+
+    private static String toStoredPhoneNumber(String phone, String identifier) {
+        if (phone == null || phone.isBlank()) return null;
+        if (identifier == null || identifier.isBlank()) return phone;
+        return phone + "-" + identifier;
+    }
 }

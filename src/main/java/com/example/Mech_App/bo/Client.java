@@ -16,6 +16,9 @@ public class Client extends Audit {
     String name;
     @Column(unique = true)
     String phoneNumber;
+    /** Auto-generated in AAAA1111 format (4 letters A–Z, 4 digits 0–9). */
+    @Column(unique = true)
+    String identifier;
     String email;
     String password;
 

@@ -14,6 +14,8 @@ public interface ClientRepository extends JpaRepository<Client, Long>, JpaSpecif
 
     Optional<Client> findByPhoneNumber(String phoneNumber);
 
+    Optional<Client> findByIdentifier(String identifier);
+
     default Client findByIdRequired(Long id) {
         return findById(id)
                 .orElseThrow(() -> new CustomResponseStatusException(HttpStatus.BAD_REQUEST, "Client not found with id: " + id));
