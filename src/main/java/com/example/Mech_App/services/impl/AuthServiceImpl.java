@@ -18,8 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -34,6 +32,23 @@ public class AuthServiceImpl implements AuthService {
         return s == null ? null : s.trim();
     }
 
+    /**
+     * For client login: use plain phone only. User stores "phone-identifier", so we must look up Client by phone, not by User.phoneNumber.
+     */
+    private static String normalizeClientPhone(String code) {
+        if (code == null || code.isBlank()) return code;
+        String t = code.trim();
+        int dash = t.indexOf('-');
+        return dash >= 0 ? t.substring(0, dash).trim() : t;
+    }
+
+    private static String identifierFromCode(String code) {
+        if (code == null || code.isBlank()) return null;
+        String t = code.trim();
+        int dash = t.indexOf('-');
+        return dash >= 0 ? t.substring(dash + 1).trim() : null;
+    }
+
     @Override
     public AuthResponse login(LoginRequest request) {
         String role = normalize(request.getRole());
@@ -41,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
             return loginAdmin(normalize(request.getEmail()), request.getPassword());
         }
         if ("CLIENT".equalsIgnoreCase(role)) {
-            return loginClient(normalize(request.getPhone()));
+            return loginClient(request.getPhone());
         }
         throw new CustomResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role. Use ADMIN or CLIENT.");
     }
@@ -68,9 +83,17 @@ public class AuthServiceImpl implements AuthService {
         if (phone == null || phone.isBlank()) {
             throw new CustomResponseStatusException(HttpStatus.BAD_REQUEST, "Phone number is required for client login.");
         }
-        // Client logs in with plain phone; User stores "phone-identifier", so find Client by phone then User by clientId
-        Client client = clientRepository.findByPhoneNumber(phone)
+
+        String normalizeClientPhone = normalizeClientPhone(phone);
+        String identifier = identifierFromCode(phone);
+        // New rules: client sends plain phone only. User.phoneNumber stores "phone-identifier", so we must not look up User by phone.
+        // Lookup: Client by phone -> User by clientId.
+        Client client = clientRepository.findByPhoneNumber(normalizeClientPhone)
                 .orElseThrow(() -> new CustomResponseStatusException(HttpStatus.UNAUTHORIZED, "No account found for this phone number."));
+
+        if(!client.getIdentifier().equals(identifier)){
+           throw  new CustomResponseStatusException(HttpStatus.UNAUTHORIZED, "No account identifier found for this phone number.");
+        }
         User user = userRepository.findByClientId(client.getId())
                 .orElseThrow(() -> new CustomResponseStatusException(HttpStatus.UNAUTHORIZED, "No account found for this phone number."));
         return buildAuthResponse(user, client);
