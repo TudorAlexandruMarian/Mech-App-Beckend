@@ -8,7 +8,9 @@ import com.example.Mech_App.specifications.ServiceEntrySpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,6 +60,12 @@ public class ServiceEntryServiceImpl implements ServiceEntryService {
 
     @Override
     public Page<ServiceEntry> getAllServiceEntries(ServiceEntryFilters filters, Pageable pageable) {
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "id")
+        );
+
         return serviceEntryRepository.findAll(
                 ServiceEntrySpecification.withFilters(
                         filters.getCarId(),
@@ -66,7 +74,7 @@ public class ServiceEntryServiceImpl implements ServiceEntryService {
                         null,
                         null
                 ),
-                pageable
+                sortedPageable
         );
     }
 
