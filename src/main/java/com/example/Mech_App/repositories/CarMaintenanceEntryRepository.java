@@ -1,7 +1,6 @@
 package com.example.Mech_App.repositories;
 
 import com.example.Mech_App.bo.CarMaintenanceEntry;
-import com.example.Mech_App.bo.DefaultMaintenanceItem;
 import com.example.Mech_App.configs.CustomResponseStatusException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -33,6 +32,9 @@ public interface CarMaintenanceEntryRepository extends JpaRepository<CarMaintena
             @Param("carId") Long carId
     );
 
+    void deleteByCarId(Long carId);
 
+    void deleteByServiceEntryIdIn(List<Long> serviceEntryIds);
 
+    void deleteByDefaultMaintenanceItemId(Long defaultMaintenanceItemId);
 }

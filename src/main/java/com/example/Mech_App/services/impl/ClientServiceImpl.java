@@ -7,6 +7,7 @@ import com.example.Mech_App.enums.UserRole;
 import com.example.Mech_App.models.ClientFilters;
 import com.example.Mech_App.repositories.ClientRepository;
 import com.example.Mech_App.repositories.UserRepository;
+import com.example.Mech_App.services.CarService;
 import com.example.Mech_App.services.ClientService;
 import com.example.Mech_App.specifications.ClientSpecification;
 import jakarta.transaction.Transactional;
@@ -31,6 +32,7 @@ public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
+    private final CarService carService;
 
     @Override
     public void createClient(Client client) {
@@ -103,8 +105,16 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public void deleteClient(Long id) {
-        clientRepository.findByIdRequired(id);
+        Client client = clientRepository.findByIdRequired(id);
+
+        // Delete all cars (and their related data) owned by this client
+        carService.getAllCarsByCustomer(client.getId())
+                .forEach(car -> carService.deleteCar(car.getId()));
+
+        // Delete linked app_user
         userRepository.findByClientId(id).ifPresent(userRepository::delete);
+
+        // Finally delete the client itself
         clientRepository.deleteById(id);
     }
 

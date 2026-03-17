@@ -1,7 +1,5 @@
 package com.example.Mech_App.repositories;
 
-import com.example.Mech_App.bo.Car;
-import com.example.Mech_App.bo.DefaultMaintenanceItem;
 import com.example.Mech_App.bo.ServiceEntry;
 import com.example.Mech_App.configs.CustomResponseStatusException;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,4 +19,6 @@ public interface ServiceEntryRepository extends JpaRepository<ServiceEntry, Long
     }
     Optional<ServiceEntry> findTopByCarIdOrderByFinishDateDesc(Long carId);
     List<ServiceEntry> findByIdIn(List<Long> ids);
+
+    List<ServiceEntry> findByCarId(Long carId);
 }

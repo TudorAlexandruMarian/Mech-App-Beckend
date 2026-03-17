@@ -2,7 +2,10 @@ package com.example.Mech_App.services.impl;
 
 import com.example.Mech_App.bo.Car;
 import com.example.Mech_App.models.CarFilters;
+import com.example.Mech_App.repositories.CarMaintenanceEntryRepository;
 import com.example.Mech_App.repositories.CarRepository;
+import com.example.Mech_App.repositories.ReminderRepository;
+import com.example.Mech_App.repositories.ServiceEntryRepository;
 import com.example.Mech_App.services.CarService;
 import com.example.Mech_App.specifications.CarSpecification;
 import jakarta.transaction.Transactional;
@@ -18,6 +21,9 @@ import java.util.List;
 public class CarServiceImpl implements CarService {
 
     private final CarRepository carRepository;
+    private final ServiceEntryRepository serviceEntryRepository;
+    private final CarMaintenanceEntryRepository carMaintenanceEntryRepository;
+    private final ReminderRepository reminderRepository;
 
     @Override
     public void createCar(Car car) {
@@ -52,7 +58,25 @@ public class CarServiceImpl implements CarService {
     @Override
     @Transactional
     public void deleteCar(Long id) {
+        // Ensure car exists
         carRepository.findByIdRequired(id);
+
+        // 1) Load all service entries for this car
+        var serviceEntries = serviceEntryRepository.findByCarId(id);
+        var serviceEntryIds = serviceEntries.stream()
+                .map(se -> se.getId())
+                .toList();
+
+        // 2) Delete all car maintenance entries linked to this car or to its service entries
+        if (!serviceEntryIds.isEmpty()) {
+            carMaintenanceEntryRepository.deleteByServiceEntryIdIn(serviceEntryIds);
+        }
+        carMaintenanceEntryRepository.deleteByCarId(id);
+
+        // 3) Delete all reminders linked directly to this car
+        reminderRepository.deleteByCarId(id);
+
+        // 4) Finally delete the car itself
         carRepository.deleteById(id);
     }
 

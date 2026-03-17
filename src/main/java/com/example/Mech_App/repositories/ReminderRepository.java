@@ -1,7 +1,6 @@
 package com.example.Mech_App.repositories;
 
 import com.example.Mech_App.bo.Remainder;
-import com.example.Mech_App.bo.ServiceEntry;
 import com.example.Mech_App.configs.CustomResponseStatusException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,5 +22,7 @@ public interface ReminderRepository extends JpaRepository<Remainder, Long> {
 
     Page<Remainder> findAllByOrderByIdDesc(Pageable pageable);
 
+    void deleteByCarId(Long carId);
 
+    void deleteByCarMaintenanceEntry(Long carMaintenanceEntryId);
 }

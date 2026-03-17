@@ -4,6 +4,7 @@ import com.example.Mech_App.services.DefaultMaintenanceItemService;
 
 import com.example.Mech_App.bo.DefaultMaintenanceItem;
 import com.example.Mech_App.models.DefaultMaintenanceItemFilters;
+import com.example.Mech_App.repositories.CarMaintenanceEntryRepository;
 import com.example.Mech_App.repositories.DefaultMaintenanceItemRepository;
 import com.example.Mech_App.specifications.DefaultMaintenanceItemSpecification;
 import jakarta.transaction.Transactional;
@@ -20,6 +21,7 @@ public class DefaultMaintenanceItemServiceImpl implements DefaultMaintenanceItem
 
 
     private final DefaultMaintenanceItemRepository repository;
+    private final CarMaintenanceEntryRepository carMaintenanceEntryRepository;
 
     @Override
     public void create(DefaultMaintenanceItem item) {
@@ -54,6 +56,12 @@ public class DefaultMaintenanceItemServiceImpl implements DefaultMaintenanceItem
     @Transactional
     public void delete(Long id) {
         repository.findByIdRequired(id);
+
+        // Delete all car maintenance entries that use this default maintenance item,
+        // and implicitly any reminders linked to those entries via DB constraints or other cascade rules.
+        carMaintenanceEntryRepository.deleteByDefaultMaintenanceItemId(id);
+
+        // Finally delete the default maintenance item itself
         repository.deleteById(id);
     }
 
