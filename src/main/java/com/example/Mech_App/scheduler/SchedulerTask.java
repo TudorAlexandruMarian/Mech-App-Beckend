@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class SchedulerTask {
 
     private final ServiceFactory serviceFactory;
-    @Scheduled(fixedRate = 600000) // every 60 seconds
+    @Scheduled(fixedRate = 21600000) // every 6 hours
     public void checkReminders() {
         serviceFactory.getReminderService().createReminders();
     }
