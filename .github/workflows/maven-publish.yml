@@ -1,0 +1,34 @@
+name: Deploy to Ubuntu
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Copy project to server
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: 192.168.0.45
+          username: alext
+          key: 1qaz!QAZ
+          source: "."
+          target: "/home/alext/app"
+
+      - name: Deploy with Docker
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: 192.168.0.45
+          username: alext
+          key: 1qaz!QAZ
+          script: |
+            cd /home/alext/app
+            docker-compose down
+            docker-compose up -d --build
