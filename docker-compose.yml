@@ -1,0 +1,41 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mech-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "1qaz!QAZ"
+      MYSQL_DATABASE: merch
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mech-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/merch?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "1qaz!QAZ"
+      STORAGE_LOCATION: /app/dms
+      CORS_ALLOWED_ORIGINS: http://localhost,http://127.0.0.1,http://localhost:8081,http://localhost:5173,http://127.0.0.1:5173
+      JWT_SECRET: "mech-app-secret-key-change-in-production-min-256-bits"
+    volumes:
+      - dms_data:/app/dms
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  dms_data:
